@@ -124,6 +124,7 @@ func bufferStageFunc(previosStageChannel <-chan int, nextStageChannel chan<- int
 }
 
 func main() {
+
 	input := make(chan int)
 	done := make(chan bool)
 	go read(input, done)
