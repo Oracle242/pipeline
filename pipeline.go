@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -46,6 +47,7 @@ func (r *RingIntBuffer) Get() []int {
 	defer r.m.Unlock()
 	var output []int = r.array[:r.pos+1]
 	r.pos = -1
+	log.Println("Передача данных для поиска эл-та")
 	return output
 }
 
@@ -61,6 +63,7 @@ func read(nextStage chan<- int, done chan bool) {
 		}
 		i, err := strconv.Atoi(data)
 		if err != nil {
+			log.Println("Введен неверный символ")
 			fmt.Println("Программа обрабатывает толлько целые числа")
 			continue
 		}
@@ -69,9 +72,11 @@ func read(nextStage chan<- int, done chan bool) {
 }
 
 func negativeFilterStageInt(previosStageChannel <-chan int, nextStageChannel chan<- int, done <-chan bool) {
+
 	for {
 		select {
 		case data := <-previosStageChannel:
+			log.Println("Сортировка на положительные числа")
 			if data > 0 {
 				nextStageChannel <- data
 			}
@@ -82,9 +87,11 @@ func negativeFilterStageInt(previosStageChannel <-chan int, nextStageChannel cha
 }
 
 func notDividedThreeFunc(previosStageChannel <-chan int, nextStageChannel chan<- int, done <-chan bool) {
+
 	for {
 		select {
 		case data := <-previosStageChannel:
+			log.Println("Сортировка на числа кратные 3м")
 			if data%3 == 0 {
 				nextStageChannel <- data
 			}
@@ -117,6 +124,7 @@ func bufferStageFunc(previosStageChannel <-chan int, nextStageChannel chan<- int
 }
 
 func main() {
+
 	input := make(chan int)
 	done := make(chan bool)
 	go read(input, done)
@@ -133,6 +141,7 @@ func main() {
 	for {
 		select {
 		case data := <-bufferedInthannel:
+			log.Printf("Вывод данных пользователю %d", data)
 			fmt.Println("Обработанные данные", data)
 		case <-done:
 			return
